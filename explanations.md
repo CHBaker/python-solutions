@@ -1,6 +1,9 @@
 # Python Technical Interview Quesions/Solutions
 
-* Many suggestions have been taken from http://www.geeksforgeeks.org/ and one on one apts. with Brad Brown
+* Many suggestions have been taken from http://www.geeksforgeeks.org/ ,
+	https://algocoding.wordpress.com/2015/04/02/detecting-cycles-in-an-undirected-graph-with-dfs-python/
+	and one on one appointments with Udacity Mentors
+
 
 ## Question 1
 
@@ -35,9 +38,13 @@
 
 	Solution Details:
 
-		My solution uses Kruskel's algorithm: it takes the input graph, an creates a set list from the graph in the format
-		(Vertex, Edge, Weight), then sorts the set list, and adds the edge to a new graph one by one, checking if the 
-		added edge makes a cycle, and if it does, removing it.
+		My solution uses Kruskel's algorithm: it takes the input graph, and creates three different data representations of it.
+		`newDict` which is a copy of the graphs keys only, that is added to for the final dict.
+		`strippedDict` which is a copy of the graphs keys only, and is kept up-to-date with `newDict`
+		but contains lists of vertices only (no weights or tuples). This dict is used to do cycle checks since
+		it is easier to check this cut down data model.
+		`edgeList` which is a sorted list in the format `('A', 'B', 5)` used for looping, that way
+		each edge is added at the least weight first, and only once to the `newDict`
 
 		Runtime => O(ElogE) or O(ElogV)
 
