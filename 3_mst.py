@@ -6,78 +6,79 @@
 	 'C': [('B', 5)]}
 	Vertices are represented as unique strings. The function definition should be question3(G)
 """
-
-
 from operator import itemgetter
 
-def isCycle(parent, previous, newDict, root):
-	print 'parent: ', parent
-	for edge in newDict[parent]:
-		if edge[0] == root and edge[0] != previous:
-			print 'there is a cycle'
-			return True
-		if edge[0] != previous:
-			print 'recursion', edge[0], parent
-			return isCycle(edge[0], parent, newDict, root)
-	print "no cycle here"
-	return False
 
-def startCycle(parent, previous, newDict, root):
-	for edge in newDict[root]:
-		print 'edge: ', edge
-		return isCycle(edge[0], root, newDict, root)
+def cycle_exists(G):
+    marked = {u: False for u in G}
+    found_cycle = [False]
+    for u in G:
+        if not marked[u]:
+            dfs_visit(G, u, found_cycle, u, marked)
+        if found_cycle[0]:
+            break
+    return found_cycle[0]
+
+
+def dfs_visit(G, u, found_cycle, pred_node, marked):
+    if found_cycle[0]:
+        return
+    marked[u] = True
+    for v in G[u]:
+        if marked[v] and v != pred_node:
+            found_cycle[0] = True
+            return
+        if not marked[v]:
+            dfs_visit(G, v, found_cycle, u, marked)
+
 
 def question3(adjDict):
-	newDict = {key: list([]) for key in adjDict.keys()}
-	root = None
-	edgeList = []
-	seen = []
-	cycle = False
+    # this dict will be the final dict
+    newDict = {key: list([]) for key in adjDict.keys()}
+    # this dict will match newDict with a stripped down more
+    # straight forward data structure, and used to test for cycles
+    strippedDict = {key: list([]) for key in adjDict.keys()}
+    # this list will be used for the main loop to make sure each loop
+    # occurs only one time.
+    edgeList = []
+    seen = []
 
-	for vert in adjDict:
-		seen.append(vert)
-		for edge in adjDict[vert]:
-			if edge[0] not in seen:
-				edge = list(edge)
-				edge.insert(0, vert)
-				edge = tuple(edge)
-				edgeList.append(edge)
+    for vert in adjDict:
+        seen.append(vert)
+        for edge in adjDict[vert]:
+            if edge[0] not in seen:
+                edge = list(edge)
+                edge.insert(0, vert)
+                edge = tuple(edge)
+                edgeList.append(edge)
 
-	list.sort(edgeList, key = itemgetter(2))
-	print edgeList, '\n\n\n'
+    list.sort(edgeList, key=itemgetter(2))
 
-	root = edgeList[0][0]
-	print 'ROOT ', root
-	
-	for union in edgeList:
-		print 'working on edge: ', union
-        # if both vertexes not in mst
-		newDict[union[0]].append((union[1], union[2]))
-		newDict[union[1]].append((union[0], union[2]))
-		# print 'is cycle? ', union[1], union[0], root
-		print 'DICT BEFORE CHECK', newDict
-		for edge in adjDict[root]:
-			print 'edge: ', edge
-			if isCycle(edge[0], root, adjDict, root) == True:
-				newDict[union[0]].remove((union[1], union[2]))
-				newDict[union[1]].remove((union[0], union[2]))
+    for union in edgeList:
+        newDict[union[0]].append((union[1], union[2]))
+        newDict[union[1]].append((union[0], union[2]))
+        strippedDict[union[0]].append(union[1])
+        strippedDict[union[1]].append(union[0])
+        if cycle_exists(strippedDict):
+            newDict[union[0]].remove((union[1], union[2]))
+            newDict[union[1]].remove((union[0], union[2]))
+            strippedDict[union[0]].remove(union[1])
+            strippedDict[union[1]].remove(union[0])
+    return newDict
 
-		print 'AFTER CHECK ', newDict
-	print 'FINAL CHECK', startCycle(edge[0], root, newDict, root)
-	return newDict
 
 a = {
-	'A': [('B', 3), ('D', 4)],
-	'B': [('A', 3), ('E', 4), ('F', 6)],
-	'C': [('E', 5)],
-	'D': [('A', 4)],
-	'E': [('B', 4), ('F', 5), ('C', 5)],
-	'F': [('B', 6), ('E', 5)]
+    'A': [('B', 3), ('D', 4)],
+    'B': [('A', 3), ('E', 4), ('F', 6)],
+    'C': [('E', 5)],
+    'D': [('A', 4)],
+    'E': [('B', 4), ('F', 5), ('C', 5)],
+    'F': [('B', 6), ('E', 5)]
 }
 
 print question3(a)
 # Should return
-# { 
+# {
 #   'A': [('B', 3), ('D', 4)],
 #	'B': [('A', 3), ('E', 4)],
 #	'C': [('E', 5)],
