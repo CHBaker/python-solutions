@@ -18,5 +18,6 @@
 	3_mst.py
 	4_lca.py
 	5_linked_list.py
+	6_StackUsingList.py
 	explanations.md
 	README.md
